@@ -92,15 +92,11 @@ struct MemorizeGrid: View {
 }
 
 
-protocol AssetInstance : AnyObject {
-    var identifier: String { get set }
-}
-
 struct MemorizeCard: Identifiable, View {
 
     @State var isFaceUp = false
     @State var isFirstRun = true
-    @State var selectedCount = 0
+    @State var selectedCount = -1
 
     func hidingImage(deadlineInSeconds:Int = 2){
         // Turn off after timeout seconds
@@ -123,8 +119,11 @@ struct MemorizeCard: Identifiable, View {
     let cornerRadius = CGFloat(25)
     var body: some View {
         ZStack {
+            Image(uiImage: "\(selectedCount < 1 ? "" : "\(selectedCount)" )".emojiToImage())
+            .resizable()
             Image(uiImage: isFaceUp ? emoji : "".emojiToImage())
             .resizable()
+        }
             .animation(.linear)
             .background(Color.orange)
             .onAppear{
@@ -142,7 +141,6 @@ struct MemorizeCard: Identifiable, View {
             )
             .zIndex(0)
             .transition(.slide)// Slide seems to only work when there is more than one thing happening
-        }
 
     }
 
