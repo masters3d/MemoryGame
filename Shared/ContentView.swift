@@ -2,32 +2,11 @@
 //  MemorizeGame.swift
 //  Masters3dSwiftUI
 //
-//  Created by Cheyo Jimenez on 5/23/20.
+//  Created by Chéyo Jiménez on 5/23/20.
 //  Copyright © 2020 masters3d. All rights reserved.
 //
 
 import SwiftUI
-
-
-typealias MemorizeCardState = (emoji: String, id: UUID)
-
-private struct CurrentSelectedKey: EnvironmentKey {
-    static let defaultValue: MemorizeCardState = ("", UUID())
-}
-
-extension EnvironmentValues {
-    var currentSelectedCardValue: MemorizeCardState {
-        get { self[CurrentSelectedKey.self] }
-        set { self[CurrentSelectedKey.self] = newValue }
-    }
-}
-
-extension View {
-    func currentSelectedCardValue(_ value: MemorizeCardState) -> some View {
-        environment(\.currentSelectedCardValue, value)
-    }
-}
-
 
 
 struct MemorizeGame: View {
@@ -122,9 +101,6 @@ struct MemorizeCard: Identifiable, View {
     @State var isFaceUp = false
     @State var isFirstRun = true
     @State var selectedCount = 0
-    @State var currentSelectedCardValueState: MemorizeCardState = ("", UUID())
-
-    @Environment(\.currentSelectedCardValue) var currentSelectedCardStateEnv: MemorizeCardState
 
     func hidingImage(deadlineInSeconds:Int = 2){
         // Turn off after timeout seconds
@@ -139,7 +115,6 @@ struct MemorizeCard: Identifiable, View {
             self.isFaceUp = true
             if(!isFirstRun){
                 selectedCount += 1
-                self.currentSelectedCardValueState = (self.emojiAsString, self.id)
             }
         }
 
@@ -159,7 +134,6 @@ struct MemorizeCard: Identifiable, View {
             }
             .onTapGesture {
                 self.showingAndHiddingImage()
-                NSLog("Selected: \(currentSelectedCardStateEnv.emoji), id: \(currentSelectedCardStateEnv.id)")
             }
             .cornerRadius(cornerRadius)
             .overlay(
@@ -167,7 +141,6 @@ struct MemorizeCard: Identifiable, View {
                 .stroke(Color.black, lineWidth: 1)
             )
             .zIndex(0)
-            .environment(\.currentSelectedCardValue, currentSelectedCardValueState)
             .transition(.slide)// Slide seems to only work when there is more than one thing happening
         }
 
