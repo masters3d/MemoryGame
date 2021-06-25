@@ -20,6 +20,7 @@ struct MemorizeGame: View {
         VStack {
         HStack {
             Text("Memory Game").font(.headline)
+            Spacer()
         }
          GeometryReader{  geometry in
                 self.grid
@@ -27,6 +28,19 @@ struct MemorizeGame: View {
             }
         }
     }
+
+    var stats:some View {
+        VStack {
+        HStack {
+            Text("Stats").font(.headline)
+        }
+            Spacer()
+            Text("List goes here")
+            Spacer()
+
+        }
+    }
+
 
     var body: some View {
 
@@ -39,7 +53,7 @@ struct MemorizeGame: View {
                 }
 
             // Next Tab
-            Text("Hellow").tabItem{
+            stats.tabItem{
                 Image(uiImage: UIImage(systemName: "heart")!)
                     Text("Stats")
             }
@@ -56,6 +70,8 @@ struct MemorizeGrid: View {
     var heightCount: Int
 
     private var currentList = [MemorizeCard]()
+
+    @State var isReacting = false
 
     init(widthCount:Int, heightCount:Int) {
         self.widthCount = widthCount
@@ -87,7 +103,16 @@ struct MemorizeGrid: View {
                     }
                 }
             }
+    }.background(isReacting ? Color.red : Color.white)
+    .onTapGesture {
+        let timeout = DispatchTimeInterval.seconds(1)
+        DispatchQueue.main.asyncAfter(deadline: .now()) {
+            self.isReacting = true
         }
+        DispatchQueue.main.asyncAfter(deadline: .now() + timeout) {
+            self.isReacting = false
+        }
+    }
     }
 }
 
