@@ -83,10 +83,14 @@ struct MemorizeGrid: View {
         let count = widthCount * heightCount;
         let countHalf = count / 2;
 
-        let half = MemorizeModel.getMemorizeCards(count: countHalf);
+        let half1 = MemorizeModel.getMemorizeCards(count: countHalf);
+        let half2 = half1.map { (memoryCardState) -> MemoryCardState in
+            // Assigning a new UUID
+            MemoryCardState.init(id: UUID(), emojiAsString: memoryCardState.emojiAsString)
+        }
 
-        currentList += half
-        currentList += half
+        currentList += half1
+        currentList += half2
         currentList.shuffle()
 
         // Fills up the rest of non pairs with singles
@@ -125,6 +129,8 @@ struct MemorizeCard: Identifiable, View {
 
     @State var isFaceUp = false
     @State var isFirstRun = true
+    @State var isMatch = false
+
     @State var selectedCount = -1
     @Binding var selectedCardStates: MemorizeCardSelected
 
@@ -133,19 +139,65 @@ struct MemorizeCard: Identifiable, View {
         let timeout = DispatchTimeInterval.seconds(deadlineInSeconds)
         DispatchQueue.main.asyncAfter(deadline: .now() + timeout) {
             self.isFaceUp = false
+
+            selectedCardStates.removeValue(forKey: self.id)
+
         }
     }
+
+    func toggleVisibilityOfImage() {
+        DispatchQueue.main.asyncAfter(deadline: .now()) {
+
+            if selectedCardStates.count < 2 {
+                self.isFaceUp.toggle()
+            } else if isFaceUp {
+                self.isFaceUp.toggle()
+            }
+
+            if (isFaceUp) {
+                selectedCardStates[self.id] = .init(id: self.id, emojiAsString: self.emojiAsString)
+            } else {
+                selectedCardStates.removeValue(forKey: self.id)
+
+            }
+
+        }
+    }
+
     func showingAndHiddingImage() {
 
         DispatchQueue.main.asyncAfter(deadline: .now()) {
             self.isFaceUp = true
             if(!isFirstRun){
                 selectedCount += 1
+
+                selectedCardStates[self.id] = .init(id: self.id, emojiAsString: self.emojiAsString)
+
             }
+
         }
 
         hidingImage()
     }
+
+    func checkIfMatch() -> Bool {
+
+        let currentValues = selectedCardStates.values.map { (memoryCardState) -> String in
+            return memoryCardState.emojiAsString
+        }
+
+        print("selected: \(currentValues.count) \(currentValues.joined(separator: " "))")
+       if let valueOfState = self.selectedCardStates[self.id] {
+            let emojiAsString = valueOfState.emojiAsString
+            var count = 0
+            for each in selectedCardStates.values {
+                count +=  each.emojiAsString == emojiAsString ? 1 : 0
+            }
+            return count > 1
+        }
+        return false
+    }
+
     let cornerRadius = CGFloat(25)
     var body: some View {
         ZStack {
@@ -155,14 +207,16 @@ struct MemorizeCard: Identifiable, View {
             .resizable()
         }
             .animation(.linear)
-            .background(Color.orange)
+            .background(isMatch ? Color.green : Color.orange)
             .onAppear{
                 defer { isFirstRun = false  }
                 guard isFirstRun else { return }
-                self.showingAndHiddingImage()
+            }
+            .onDisappear {
             }
             .onTapGesture {
-                self.showingAndHiddingImage()
+                self.toggleVisibilityOfImage()
+                self.isMatch = self.checkIfMatch()
             }
             .cornerRadius(cornerRadius)
             .overlay(
