@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-typealias MemorizeCardSelected = Dictionary<UUID, MemoryCardState>
+typealias MemorizeCardSelected = Dictionary<UUID, Emoji>
 
 struct MemorizeGame: View {
 
@@ -70,7 +70,7 @@ struct MemorizeGrid: View {
     var widthCount: Int
     var heightCount: Int
 
-    private var currentList = [MemoryCardState]()
+    private var currentList = [Emoji]()
 
     @State var isReacting = false
 
@@ -83,14 +83,10 @@ struct MemorizeGrid: View {
         let count = widthCount * heightCount;
         let countHalf = count / 2;
 
-        let half1 = MemorizeModel.getMemorizeCards(count: countHalf);
-        let half2 = half1.map { (memoryCardState) -> MemoryCardState in
-            // Assigning a new UUID
-            MemoryCardState.init(id: UUID(), emojiAsString: memoryCardState.emojiAsString)
-        }
+        let half = MemorizeModel.getMemorizeCards(count: countHalf);
 
-        currentList += half1
-        currentList += half2
+        currentList += half
+        currentList += half
         currentList.shuffle()
 
         // Fills up the rest of non pairs with singles
@@ -155,7 +151,7 @@ struct MemorizeCard: Identifiable, View {
             }
 
             if (isFaceUp) {
-                selectedCardStates[self.id] = .init(id: self.id, emojiAsString: self.emojiAsString)
+                selectedCardStates[self.id] = .init(emojiAsString: self.emojiAsString)
             } else {
                 selectedCardStates.removeValue(forKey: self.id)
 
@@ -171,7 +167,7 @@ struct MemorizeCard: Identifiable, View {
             if(!isFirstRun){
                 selectedCount += 1
 
-                selectedCardStates[self.id] = .init(id: self.id, emojiAsString: self.emojiAsString)
+                selectedCardStates[self.id] = .init(emojiAsString: self.emojiAsString)
 
             }
 
@@ -232,12 +228,12 @@ struct MemorizeCard: Identifiable, View {
     var id: UUID
     var emojiAsString:String
 
-    init(memoryCardState: MemoryCardState,
+    init(memoryCardState: Emoji,
         seleced: Binding<MemorizeCardSelected>)
         {
             self.emoji = memoryCardState.emojiAsString.emojiToImage()
             self.emojiAsString = memoryCardState.emojiAsString
-            self.id = memoryCardState.id
+            self.id = UUID()
             self._selectedCardStates = seleced
         }
 }
@@ -260,10 +256,6 @@ extension String {
     }
 }
 
-struct MemoryCardState {
-    var id: UUID
-    var emojiAsString: String
-}
 
 struct MemorizeModel {
 
@@ -283,9 +275,9 @@ struct MemorizeModel {
         return Array(allEmojis.shuffled()[0..<count])
     }
 
-    static func getMemorizeCards(count:Int) -> [MemoryCardState] {
+    static func getMemorizeCards(count:Int) -> [Emoji] {
         return getRandomEmoji(count: count).map {
-            MemoryCardState.init(id: UUID(), emojiAsString: $0)
+            Emoji.init(emojiAsString: $0)
             }
         }
 
