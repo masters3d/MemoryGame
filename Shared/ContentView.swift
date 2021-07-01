@@ -8,6 +8,7 @@
 
 import SwiftUI
 
+typealias MemorizeCardSelected = Dictionary<UUID, Emoji>
 
 struct MemorizeGame: View {
 
@@ -20,6 +21,7 @@ struct MemorizeGame: View {
         VStack {
         HStack {
             Text("Memory Game").font(.headline)
+            Spacer()
         }
          GeometryReader{  geometry in
                 self.grid
@@ -27,6 +29,19 @@ struct MemorizeGame: View {
             }
         }
     }
+
+    var stats:some View {
+        VStack {
+        HStack {
+            Text("Stats").font(.headline)
+        }
+            Spacer()
+            Text("List goes here")
+            Spacer()
+
+        }
+    }
+
 
     var body: some View {
 
@@ -39,7 +54,7 @@ struct MemorizeGame: View {
                 }
 
             // Next Tab
-            Text("Hellow").tabItem{
+            stats.tabItem{
                 Image(uiImage: UIImage(systemName: "heart")!)
                     Text("Stats")
             }
@@ -55,7 +70,11 @@ struct MemorizeGrid: View {
     var widthCount: Int
     var heightCount: Int
 
-    private var currentList = [MemorizeCard]()
+    private var currentList = [Emoji]()
+
+    @State var isReacting = false
+
+    @State var selectedCardStates = MemorizeCardSelected()
 
     init(widthCount:Int, heightCount:Int) {
         self.widthCount = widthCount
@@ -82,12 +101,22 @@ struct MemorizeGrid: View {
             ForEach(0..<self.heightCount) { heightIndex in
                 HStack(spacing: 0) {
                     ForEach(0..<self.widthCount) { widthIndex in
-                        return self.currentList[(heightIndex * self.widthCount) +  widthIndex].padding(2)
+                        return MemorizeCard(memoryCardState: self.currentList[(heightIndex * self.widthCount) +  widthIndex], seleced: $selectedCardStates)
+                            .padding(2)
                         }
                     }
                 }
             }
+    }.background(isReacting ? Color.red : Color.white)
+    .onTapGesture {
+        let timeout = DispatchTimeInterval.seconds(1)
+        DispatchQueue.main.asyncAfter(deadline: .now()) {
+            self.isReacting = true
         }
+        DispatchQueue.main.asyncAfter(deadline: .now() + timeout) {
+            self.isReacting = false
+        }
+    }
     }
 }
 
@@ -96,43 +125,96 @@ struct MemorizeCard: Identifiable, View {
 
     @State var isFaceUp = false
     @State var isFirstRun = true
+    @State var isMatch = false
+
     @State var selectedCount = -1
+    @Binding var selectedCardStates: MemorizeCardSelected
 
     func hidingImage(deadlineInSeconds:Int = 2){
         // Turn off after timeout seconds
         let timeout = DispatchTimeInterval.seconds(deadlineInSeconds)
         DispatchQueue.main.asyncAfter(deadline: .now() + timeout) {
             self.isFaceUp = false
+
+            selectedCardStates.removeValue(forKey: self.id)
+
         }
     }
+
+    func toggleVisibilityOfImage() {
+        DispatchQueue.main.asyncAfter(deadline: .now()) {
+
+            if selectedCardStates.count < 2 {
+                self.isFaceUp.toggle()
+            } else if isFaceUp {
+                self.isFaceUp.toggle()
+            }
+
+            if (isFaceUp) {
+                selectedCardStates[self.id] = .init(emojiAsString: self.emojiAsString)
+            } else {
+                selectedCardStates.removeValue(forKey: self.id)
+
+            }
+
+        }
+    }
+
     func showingAndHiddingImage() {
 
         DispatchQueue.main.asyncAfter(deadline: .now()) {
             self.isFaceUp = true
             if(!isFirstRun){
                 selectedCount += 1
+
+                selectedCardStates[self.id] = .init(emojiAsString: self.emojiAsString)
+
             }
+
         }
 
         hidingImage()
     }
+
+    func checkIfMatch() -> Bool {
+
+        let currentValues = selectedCardStates.values.map { (memoryCardState) -> String in
+            return memoryCardState.emojiAsString
+        }
+
+        print("selected: \(currentValues.count) \(currentValues.joined(separator: " "))")
+       if let valueOfState = self.selectedCardStates[self.id] {
+            let emojiAsString = valueOfState.emojiAsString
+            var count = 0
+            for each in selectedCardStates.values {
+                count +=  each.emojiAsString == emojiAsString ? 1 : 0
+            }
+            return count > 1
+        }
+        return false
+    }
+
     let cornerRadius = CGFloat(25)
     var body: some View {
         ZStack {
-            Image(uiImage: "\(selectedCount < 1 ? "" : "\(selectedCount)" )".emojiToImage())
+            Image(uiImage: ImageCache[
+            "\(selectedCount < 1 ? "" : "\(selectedCount)" )"
+            ])
             .resizable()
-            Image(uiImage: isFaceUp ? emoji : "".emojiToImage())
+            Image(uiImage: isFaceUp ? emoji.emojiToImage() : ImageCache[""])
             .resizable()
         }
             .animation(.linear)
-            .background(Color.orange)
+            .background(isMatch ? Color.green : Color.orange)
             .onAppear{
                 defer { isFirstRun = false  }
                 guard isFirstRun else { return }
-                self.showingAndHiddingImage()
+            }
+            .onDisappear {
             }
             .onTapGesture {
-                self.showingAndHiddingImage()
+                self.toggleVisibilityOfImage()
+                self.isMatch = self.checkIfMatch()
             }
             .cornerRadius(cornerRadius)
             .overlay(
@@ -144,66 +226,21 @@ struct MemorizeCard: Identifiable, View {
 
     }
 
-    var emoji:UIImage
-    var id: UUID = UUID()
+    var emoji:Emoji
+    var id: UUID
     var emojiAsString:String
 
-    init(emojiAsString:String) {
-        self.emoji = emojiAsString.emojiToImage()
-        self.emojiAsString = emojiAsString
+    init(memoryCardState: Emoji,
+        seleced: Binding<MemorizeCardSelected>)
+        {
+            self.emoji = memoryCardState
+            self.emojiAsString = memoryCardState.emojiAsString
+            self.id = UUID()
+            self._selectedCardStates = seleced
         }
 }
 
 
-extension String {
-    func emojiToImage() -> UIImage {
-            let nsString = (self as NSString)
-            let font = UIFont.systemFont(ofSize: 1024)
-            let stringAttributes = [NSAttributedString.Key.font: font]
-            let imageSize = nsString.size(withAttributes: stringAttributes)
-
-            UIGraphicsBeginImageContextWithOptions(imageSize, false, 0)
-            UIColor.clear.set()
-            UIRectFill(CGRect(origin: CGPoint(), size: imageSize))
-            nsString.draw(at: CGPoint.zero, withAttributes: stringAttributes)
-            let image = UIGraphicsGetImageFromCurrentImageContext()
-            UIGraphicsEndImageContext()
-            return image ?? UIImage()
-    }
-}
-
-struct MemorizeModel {
-
-    static let allEmojis = getAllEmojis()
-
-    static func getRandomEmoji() -> String {
-        return allEmojis.randomElement() ?? "😎"
-    }
-
-    static func getRandomEmoji(count: Int)-> [String]{
-
-        guard count > 0, count < allEmojis.count
-        else {
-         return allEmojis
-        }
-
-        return Array(allEmojis.shuffled()[0..<count])
-    }
-
-    static func getMemorizeCards(count:Int) -> [MemorizeCard] {
-        return getRandomEmoji(count: count).map {MemorizeCard.init(emojiAsString: $0)}
-        }
-
-    private static func getAllEmojis() -> [String] {
-        var emojis = Set<String>()
-        for i in 8400...0x1F9FF{
-            if let scalar = UnicodeScalar(i), scalar.properties.isEmojiPresentation {
-                emojis.insert((String(scalar)))
-            }
-        }
-        return Array(emojis)
-    }
-}
 
 
 struct MemorizeGame_Previews: PreviewProvider {
