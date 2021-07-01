@@ -197,9 +197,11 @@ struct MemorizeCard: Identifiable, View {
     let cornerRadius = CGFloat(25)
     var body: some View {
         ZStack {
-            Image(uiImage: "\(selectedCount < 1 ? "" : "\(selectedCount)" )".emojiToImage())
+            Image(uiImage: ImageCache[
+            "\(selectedCount < 1 ? "" : "\(selectedCount)" )"
+            ])
             .resizable()
-            Image(uiImage: isFaceUp ? emoji : "".emojiToImage())
+            Image(uiImage: isFaceUp ? emoji : ImageCache[""])
             .resizable()
         }
             .animation(.linear)
@@ -231,7 +233,7 @@ struct MemorizeCard: Identifiable, View {
     init(memoryCardState: Emoji,
         seleced: Binding<MemorizeCardSelected>)
         {
-            self.emoji = memoryCardState.emojiAsString.emojiToImage()
+            self.emoji = memoryCardState.emojiToImage()
             self.emojiAsString = memoryCardState.emojiAsString
             self.id = UUID()
             self._selectedCardStates = seleced
@@ -239,58 +241,6 @@ struct MemorizeCard: Identifiable, View {
 }
 
 
-extension String {
-    func emojiToImage() -> UIImage {
-            let nsString = (self as NSString)
-            let font = UIFont.systemFont(ofSize: 1024)
-            let stringAttributes = [NSAttributedString.Key.font: font]
-            let imageSize = nsString.size(withAttributes: stringAttributes)
-
-            UIGraphicsBeginImageContextWithOptions(imageSize, false, 0)
-            UIColor.clear.set()
-            UIRectFill(CGRect(origin: CGPoint(), size: imageSize))
-            nsString.draw(at: CGPoint.zero, withAttributes: stringAttributes)
-            let image = UIGraphicsGetImageFromCurrentImageContext()
-            UIGraphicsEndImageContext()
-            return image ?? UIImage()
-    }
-}
-
-
-struct MemorizeModel {
-
-    static let allEmojis = getAllEmojis()
-
-    static func getRandomEmoji() -> String {
-        return allEmojis.randomElement() ?? "😎"
-    }
-
-    static func getRandomEmoji(count: Int)-> [String]{
-
-        guard count > 0, count < allEmojis.count
-        else {
-         return allEmojis
-        }
-
-        return Array(allEmojis.shuffled()[0..<count])
-    }
-
-    static func getMemorizeCards(count:Int) -> [Emoji] {
-        return getRandomEmoji(count: count).map {
-            Emoji.init(emojiAsString: $0)
-            }
-        }
-
-    private static func getAllEmojis() -> [String] {
-        var emojis = Set<String>()
-        for i in 8400...0x1F9FF{
-            if let scalar = UnicodeScalar(i), scalar.properties.isEmojiPresentation {
-                emojis.insert((String(scalar)))
-            }
-        }
-        return Array(emojis)
-    }
-}
 
 
 struct MemorizeGame_Previews: PreviewProvider {
