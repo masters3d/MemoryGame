@@ -201,7 +201,7 @@ struct MemorizeCard: Identifiable, View {
             "\(selectedCount < 1 ? "" : "\(selectedCount)" )"
             ])
             .resizable()
-            Image(uiImage: isFaceUp ? emoji : ImageCache[""])
+            Image(uiImage: isFaceUp ? emoji.emojiToImage() : ImageCache[""])
             .resizable()
         }
             .animation(.linear)
@@ -226,14 +226,14 @@ struct MemorizeCard: Identifiable, View {
 
     }
 
-    var emoji:UIImage
+    var emoji:Emoji
     var id: UUID
     var emojiAsString:String
 
     init(memoryCardState: Emoji,
         seleced: Binding<MemorizeCardSelected>)
         {
-            self.emoji = memoryCardState.emojiToImage()
+            self.emoji = memoryCardState
             self.emojiAsString = memoryCardState.emojiAsString
             self.id = UUID()
             self._selectedCardStates = seleced

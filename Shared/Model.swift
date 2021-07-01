@@ -19,6 +19,7 @@ enum ImageCache {
         _cacheQueue.async {
             if let _ = _cache[emojiAsString] {
             } else {
+                print("selected: cache warming \(emojiAsString)")
                 let newImage = emojiToImageBlocking(emojiAsString)
                 _cacheQueue.async(flags: .barrier) {
                         _cache[emojiAsString] = newImage
@@ -33,6 +34,7 @@ enum ImageCache {
                 if let image = _cache[emojiAsString] {
                     return image
                 }
+                print("selected: cache miss \(emojiAsString)")
                 let newImage = emojiToImageBlocking(emojiAsString)
                 _cache[emojiAsString] = newImage
                 return newImage
