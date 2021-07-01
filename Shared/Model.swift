@@ -66,7 +66,7 @@ enum ImageCache {
 
 }
 
-struct Emoji {
+struct Emoji:Hashable {
     var emojiAsString: String
 }
 

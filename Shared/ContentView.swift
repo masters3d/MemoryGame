@@ -76,6 +76,8 @@ struct MemorizeGrid: View {
 
     @State var selectedCardStates = MemorizeCardSelected()
 
+    @State var matchedCards = Dictionary<Emoji,Int>()
+
     init(widthCount:Int, heightCount:Int) {
         self.widthCount = widthCount
         self.heightCount = heightCount
@@ -101,8 +103,13 @@ struct MemorizeGrid: View {
             ForEach(0..<self.heightCount) { heightIndex in
                 HStack(spacing: 0) {
                     ForEach(0..<self.widthCount) { widthIndex in
-                        return MemorizeCard(memoryCardState: self.currentList[(heightIndex * self.widthCount) +  widthIndex], seleced: $selectedCardStates)
-                            .padding(2)
+                        let emoji = self.currentList[(heightIndex * self.widthCount) +  widthIndex]
+                        let emojiView = MemorizeCard(
+                            emoji: emoji,
+                            selected: $selectedCardStates,
+                            matched: $matchedCards
+                        )
+                        emojiView.padding(2)
                         }
                     }
                 }
@@ -123,12 +130,17 @@ struct MemorizeGrid: View {
 
 struct MemorizeCard: Identifiable, View {
 
+
+    let timerMatchedCard = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+
     @State var isFaceUp = false
     @State var isFirstRun = true
     @State var isMatch = false
 
-    @State var selectedCount = -1
+    @State var selectedCount = 0
     @Binding var selectedCardStates: MemorizeCardSelected
+
+    @Binding var matchedCards: Dictionary<Emoji, Int>
 
     func hidingImage(deadlineInSeconds:Int = 2){
         // Turn off after timeout seconds
@@ -151,6 +163,8 @@ struct MemorizeCard: Identifiable, View {
             }
 
             if (isFaceUp) {
+                // Show count to user
+                selectedCount += 1
                 selectedCardStates[self.id] = .init(emojiAsString: self.emojiAsString)
             } else {
                 selectedCardStates.removeValue(forKey: self.id)
@@ -183,13 +197,30 @@ struct MemorizeCard: Identifiable, View {
         }
 
         print("selected: \(currentValues.count) \(currentValues.joined(separator: " "))")
+
+        if matchedCards.keys.contains(self.emoji) {
+            return true
+        }
        if let valueOfState = self.selectedCardStates[self.id] {
             let emojiAsString = valueOfState.emojiAsString
             var count = 0
-            for each in selectedCardStates.values {
-                count +=  each.emojiAsString == emojiAsString ? 1 : 0
+            var indexToRemove = [UUID]()
+            for (eachIndex, eachValue) in selectedCardStates {
+                count +=  eachValue.emojiAsString == emojiAsString ? 1 : 0
+                if (eachValue == valueOfState) {
+                    indexToRemove.append(eachIndex)
+                }
             }
-            return count > 1
+            if count > 1 {
+                matchedCards[valueOfState] = count
+                // clean up
+                for each in indexToRemove {
+                    selectedCardStates.removeValue(forKey: each)
+                }
+            }
+        }
+        if matchedCards.keys.contains(self.emoji) {
+            return true
         }
         return false
     }
@@ -210,9 +241,22 @@ struct MemorizeCard: Identifiable, View {
                 defer { isFirstRun = false  }
                 guard isFirstRun else { return }
             }
+            .onReceive(timerMatchedCard) { _ in
+                isMatch = self.checkIfMatch()
+                if isMatch {
+                    //Cancel timer for cell
+                    self.timerMatchedCard.upstream.connect().cancel()
+                    self.isFaceUp = false
+                }
+            }
             .onDisappear {
             }
             .onTapGesture {
+                if isMatch {
+                // disable tapping if matched already
+                 return
+                }
+
                 self.toggleVisibilityOfImage()
                 self.isMatch = self.checkIfMatch()
             }
@@ -230,13 +274,17 @@ struct MemorizeCard: Identifiable, View {
     var id: UUID
     var emojiAsString:String
 
-    init(memoryCardState: Emoji,
-        seleced: Binding<MemorizeCardSelected>)
+    init(
+        emoji: Emoji,
+        selected: Binding<MemorizeCardSelected>,
+        matched: Binding<Dictionary<Emoji,Int>>
+        )
         {
-            self.emoji = memoryCardState
-            self.emojiAsString = memoryCardState.emojiAsString
+            self.emoji = emoji
+            self.emojiAsString = emoji.emojiAsString
             self.id = UUID()
-            self._selectedCardStates = seleced
+            self._selectedCardStates = selected
+            self._matchedCards = matched
         }
 }
 
