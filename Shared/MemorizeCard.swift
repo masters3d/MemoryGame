@@ -32,11 +32,19 @@ struct MemorizeCard: Identifiable, View {
 
     let cornerRadius = CGFloat(25)
     var body: some View {
+    GeometryReader { metrics in
         ZStack {
-            Image(uiImage: ImageCache[
-            "\(emoji.selectedCount < 1 ? "" : "\(emoji.selectedCount)" )"
-            ])
-            .resizable()
+            VStack {
+            HStack {
+                Spacer(minLength: emoji.isMatch ? 0 : metrics.size.width * 0.65)
+                Image(uiImage: ImageCache[
+                "\(emoji.selectedCount < 1 ? "" : "\(emoji.selectedCount)" )"
+                ])
+                .resizable()
+            }
+                Spacer(minLength: emoji.isMatch ? 0 : metrics.size.height * 0.65)
+            }
+
             Image(uiImage: emoji.isFaceUp && !emoji.isMatch ? emoji.emojiToImage() : ImageCache[""])
             .resizable()
         }
@@ -79,7 +87,7 @@ struct MemorizeCard: Identifiable, View {
             )
             .zIndex(0)
             .transition(.slide)// Slide seems to only work when there is more than one thing happening
-
+        }
     }
 
     var index:Int
@@ -110,10 +118,9 @@ struct MemorizeCard: Identifiable, View {
 
 #if DEBUG
 struct MemorizeCard_Previews_Wrapper:View {
-    @State var current = Array<EmojiState>()
+    @State var current:Array<EmojiState> =  [EmojiState.init(value: EmojiValue.init(emojiAsString: "😎"))]
     @State var matched = Dictionary<EmojiValue, Int>()
     var body: some View {
-           current.append(EmojiState.init(value: EmojiValue.init(emojiAsString: "😎")))
 
             return  MemorizeCard(index: 0, matched: $matched, current: $current)
             .frame(width: 150, height: 150, alignment: .center)
