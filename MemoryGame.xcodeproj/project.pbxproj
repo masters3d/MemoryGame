@@ -17,6 +17,8 @@
 		1E29F27E268D73D200BC3C69 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E29F27C268D73D100BC3C69 /* Model.swift */; };
 		1E29F282268D73DF00BC3C69 /* Controller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E29F281268D73DF00BC3C69 /* Controller.swift */; };
 		1E29F283268D73DF00BC3C69 /* Controller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E29F281268D73DF00BC3C69 /* Controller.swift */; };
+		1E85104D2691469500A97090 /* MemorizeCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E85104C2691469500A97090 /* MemorizeCard.swift */; };
+		1E85104E2691469500A97090 /* MemorizeCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E85104C2691469500A97090 /* MemorizeCard.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,6 +32,7 @@
 		1E263C132685927E00084EF3 /* macOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = macOS.entitlements; sourceTree = "<group>"; };
 		1E29F27C268D73D100BC3C69 /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
 		1E29F281268D73DF00BC3C69 /* Controller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Controller.swift; sourceTree = "<group>"; };
+		1E85104C2691469500A97090 /* MemorizeCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemorizeCard.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -65,6 +68,7 @@
 			children = (
 				1E263C012685927400084EF3 /* MemoryGameApp.swift */,
 				1E263C022685927400084EF3 /* ContentView.swift */,
+				1E85104C2691469500A97090 /* MemorizeCard.swift */,
 				1E263C032685927E00084EF3 /* Assets.xcassets */,
 				1E29F27C268D73D100BC3C69 /* Model.swift */,
 				1E29F281268D73DF00BC3C69 /* Controller.swift */,
@@ -199,6 +203,7 @@
 				1E263C162685927E00084EF3 /* ContentView.swift in Sources */,
 				1E263C142685927E00084EF3 /* MemoryGameApp.swift in Sources */,
 				1E29F282268D73DF00BC3C69 /* Controller.swift in Sources */,
+				1E85104D2691469500A97090 /* MemorizeCard.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -210,6 +215,7 @@
 				1E263C172685927E00084EF3 /* ContentView.swift in Sources */,
 				1E263C152685927E00084EF3 /* MemoryGameApp.swift in Sources */,
 				1E29F283268D73DF00BC3C69 /* Controller.swift in Sources */,
+				1E85104E2691469500A97090 /* MemorizeCard.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
