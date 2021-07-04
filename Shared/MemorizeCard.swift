@@ -16,7 +16,7 @@ struct MemorizeCard: Identifiable, View {
     @State var isMatch = false
 
     @State var selectedCount = 0
-    @Binding var selectedCardStates: MemorizeCardSelected
+    @Binding var selectedCardStates:  Dictionary<UUID, Emoji>
 
     @Binding var matchedCards: Dictionary<Emoji, Int>
 
@@ -154,7 +154,7 @@ struct MemorizeCard: Identifiable, View {
 
     init(
         emoji: Emoji,
-        selected: Binding<MemorizeCardSelected>,
+        selected: Binding< Dictionary<UUID, Emoji>>,
         matched: Binding<Dictionary<Emoji,Int>>
         )
         {
@@ -168,7 +168,7 @@ struct MemorizeCard: Identifiable, View {
 
 #if DEBUG
 struct MemorizeCard_Previews_Wrapper:View {
-    @State var selected = MemorizeCardSelected()
+    @State var selected = Dictionary<UUID, Emoji>()
     @State var matched = Dictionary<Emoji, Int>()
     var body: some View {
               MemorizeCard(emoji: Emoji.init(emojiAsString: "😎"), selected: $selected, matched: $matched).frame(width: 150, height: 150, alignment: .center)

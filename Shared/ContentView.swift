@@ -8,7 +8,6 @@
 
 import SwiftUI
 
-typealias MemorizeCardSelected = Dictionary<UUID, Emoji>
 
 struct MemorizeGrid: View {
     var widthCount: Int
@@ -18,7 +17,7 @@ struct MemorizeGrid: View {
 
     @State var isReacting = false
 
-    @State var selectedCardStates = MemorizeCardSelected()
+    @State var selectedCardStates =  Dictionary<UUID, Emoji>()
 
     @State var matchedCards = Dictionary<Emoji,Int>()
 
