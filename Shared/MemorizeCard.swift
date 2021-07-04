@@ -15,7 +15,6 @@ struct MemorizeCard: Identifiable, View {
     @State var isMatch = false
 
     @State var selectedCount = 0
-    @Binding var currentList:  Dictionary<UUID, Emoji>
 
     @Binding var matchedCards: Dictionary<Emoji, Int>
 
@@ -65,30 +64,47 @@ struct MemorizeCard: Identifiable, View {
 
     }
 
-    var emoji:Emoji
+
+    @Binding var currentList:[Emoji]
+
+
+    var index:Int
+    var emoji:Emoji {
+        get {
+            print("selected: index: \(index), currentList Count \(currentList.count)")
+
+            return currentList[index]
+        }
+    }
     var id: UUID
-    var emojiAsString:String
+    var emojiAsString:String {
+        get {
+            return emoji.emojiAsString
+        }
+    }
 
     init(
-        emoji: Emoji,
-        selected: Binding< Dictionary<UUID, Emoji>>,
-        matched: Binding<Dictionary<Emoji,Int>>
+        index: Int,
+        matched: Binding<Dictionary<Emoji, Int>>,
+        current: Binding<Array<Emoji>>
         )
         {
-            self.emoji = emoji
-            self.emojiAsString = emoji.emojiAsString
             self.id = UUID()
-            self._selectedCardStates = selected
+            self.index = index
             self._matchedCards = matched
+            self._currentList = current
         }
 }
 
 #if DEBUG
 struct MemorizeCard_Previews_Wrapper:View {
-    @State var selected = Dictionary<UUID, Emoji>()
+    @State var current = Array<Emoji>()
     @State var matched = Dictionary<Emoji, Int>()
     var body: some View {
-              MemorizeCard(emoji: Emoji.init(emojiAsString: "😎"), selected: $selected, matched: $matched).frame(width: 150, height: 150, alignment: .center)
+           current.append(Emoji.init(emojiAsString: "😎"))
+
+            return  MemorizeCard(index: 0, matched: $matched, current: $current)
+            .frame(width: 150, height: 150, alignment: .center)
     }
 }
 

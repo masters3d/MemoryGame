@@ -10,46 +10,39 @@ import SwiftUI
 
 
 struct MemorizeGrid: View {
-    var widthCount: Int
-    var heightCount: Int
 
-    private var currentList = [Emoji]()
-
-    @State var selectedCardStates =  Dictionary<UUID, Emoji>()
+    @State var currentList = createEmoji()
 
     @State var matchedCards = Dictionary<Emoji,Int>()
 
-    init(widthCount:Int, heightCount:Int) {
-        self.widthCount = widthCount
-        self.heightCount = heightCount
+    static var widthCount = 4
+    static var heightCount = 5
+
+    static func createEmoji() -> [Emoji] {
+
+        var temp = [Emoji]()
 
         let count = widthCount * heightCount;
         let countHalf = count / 2;
 
         let half = MemorizeModel.getMemorizeCards(count: countHalf);
 
-        currentList += half
-        currentList += half
-        currentList.shuffle()
+        temp += half
+        temp += half
+        temp.shuffle()
 
-        // Fills up the rest of non pairs with singles
-        while(currentList.count < count) {
-            currentList += MemorizeModel.getMemorizeCards(count: 1)
-        }
+        return temp
     }
+
 
     var body: some View {
     GeometryReader { geometry in
         VStack(spacing: 0) {
-            ForEach(0..<self.heightCount) { heightIndex in
+            ForEach(0..<MemorizeGrid.heightCount) { heightIndex in
                 HStack(spacing: 0) {
-                    ForEach(0..<self.widthCount) { widthIndex in
-                        let emoji = self.currentList[(heightIndex * self.widthCount) +  widthIndex]
-                        let emojiView = MemorizeCard(
-                            emoji: emoji,
-                            selected: $selectedCardStates,
-                            matched: $matchedCards
-                        )
+                    ForEach(0..<MemorizeGrid.widthCount) { widthIndex in
+                        let emoji_index = (heightIndex * MemorizeGrid.widthCount) +  widthIndex
+                        let emojiView = MemorizeCard(index: emoji_index, matched: $matchedCards, current: $currentList)
                         emojiView.padding(2)
                         }
                     }
@@ -65,10 +58,7 @@ struct MemorizeGrid: View {
 
 struct MemorizeGrid_Previews: PreviewProvider {
     static var previews: some View {
-       MemorizeGrid(
-                    widthCount: 4,
-                    heightCount: 5
-                    )
+       MemorizeGrid()
     }
 }
 

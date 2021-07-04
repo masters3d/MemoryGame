@@ -18,10 +18,7 @@ struct MemoryGameApp: App {
 
 struct MemorizeGame: View {
 
-    var grid = MemorizeGrid(
-                    widthCount: 4,
-                    heightCount: 5
-                    )
+    var grid = MemorizeGrid()
 
     var game:some View {
         VStack {
