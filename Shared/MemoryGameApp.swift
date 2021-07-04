@@ -56,7 +56,7 @@ struct MemorizeGame: View {
             // First Tab
             game.tabItem {
                 Image(uiImage: UIImage(systemName: "gamecontroller")!)
-                    Text("Game")
+                    Text("Game1")
                 }
 
             // Next Tab

@@ -15,8 +15,6 @@ struct MemorizeGrid: View {
 
     private var currentList = [Emoji]()
 
-    @State var isReacting = false
-
     @State var selectedCardStates =  Dictionary<UUID, Emoji>()
 
     @State var matchedCards = Dictionary<Emoji,Int>()
@@ -57,19 +55,21 @@ struct MemorizeGrid: View {
                     }
                 }
             }
-    }.background(isReacting ? Color.red : Color.white)
-    .onTapGesture {
-        let timeout = DispatchTimeInterval.seconds(1)
-        DispatchQueue.main.asyncAfter(deadline: .now()) {
-            self.isReacting = true
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + timeout) {
-            self.isReacting = false
-        }
-    }
     }
 }
 
 
 
+#if DEBUG
 
+struct MemorizeGrid_Previews: PreviewProvider {
+    static var previews: some View {
+       MemorizeGrid(
+                    widthCount: 4,
+                    heightCount: 5
+                    )
+    }
+}
+
+#endif
