@@ -177,7 +177,12 @@ struct MemorizeCard_Previews_Wrapper:View {
 
 struct MemorizeCard_Previews: PreviewProvider {
     static var previews: some View {
-        MemorizeCard_Previews_Wrapper()
+        if #available(iOS 15.0, *) {
+                MemorizeCard_Previews_Wrapper()
+                .previewInterfaceOrientation(.landscapeRight)
+        } else {
+            // Fallback on earlier versions
+        }
     }
 }
 #endif
