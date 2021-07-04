@@ -66,13 +66,20 @@ enum ImageCache {
 
 }
 
-struct Emoji:Hashable {
+struct EmojiValue:Hashable {
     var emojiAsString: String
 }
 
-extension Emoji {
+struct EmojiState:Hashable {
+    var value: EmojiValue
+    var isFaceUp = false
+    var isMatch = false
+    var selectedCount = 0
+}
+
+extension EmojiState {
     func emojiToImage() -> UIImage {
-        ImageCache[self.emojiAsString]
+        ImageCache[self.value.emojiAsString]
     }
 }
 
@@ -94,14 +101,14 @@ struct MemorizeModel {
         return Array(allEmojis.shuffled()[0..<count])
     }
 
-    static func getMemorizeCards(count:Int) -> [Emoji] {
+    static func getMemorizeCards(count:Int) -> [EmojiState] {
         return getRandomEmoji(count: count).map {
 
             let emojiAsString = $0
             defer {
                 ImageCache.warmCacheWith(emojiAsString: emojiAsString)
             }
-            return Emoji.init(emojiAsString: emojiAsString)
+            return EmojiState.init(value: .init(emojiAsString: emojiAsString))
             }
         }
 

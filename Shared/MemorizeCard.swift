@@ -9,134 +9,68 @@ import SwiftUI
 
 struct MemorizeCard: Identifiable, View {
 
-    let timerMatchedCard = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+    @Binding var matchedCards: Dictionary<EmojiValue, Int>
 
-    @State var isFaceUp = false
-    @State var isFirstRun = true
-    @State var isMatch = false
-
-    @State var selectedCount = 0
-    @Binding var selectedCardStates:  Dictionary<UUID, Emoji>
-
-    @Binding var matchedCards: Dictionary<Emoji, Int>
-
-    func hidingImage(deadlineInSeconds:Int = 2){
-        // Turn off after timeout seconds
-        let timeout = DispatchTimeInterval.seconds(deadlineInSeconds)
-        DispatchQueue.main.asyncAfter(deadline: .now() + timeout) {
-            self.isFaceUp = false
-
-            selectedCardStates.removeValue(forKey: self.id)
-
-        }
-    }
+    @Binding var currentList:[EmojiState]
 
     func toggleVisibilityOfImage() {
         DispatchQueue.main.asyncAfter(deadline: .now()) {
 
-            if selectedCardStates.count < 2 {
-                self.isFaceUp.toggle()
-            } else if isFaceUp {
-                self.isFaceUp.toggle()
-            }
+            var temp = emoji
+            temp.isFaceUp.toggle()
+                currentList[index] = temp
 
-            if (isFaceUp) {
+            if (emoji.isFaceUp) {
                 // Show count to user
-                selectedCount += 1
-                selectedCardStates[self.id] = .init(emojiAsString: self.emojiAsString)
-            } else {
-                selectedCardStates.removeValue(forKey: self.id)
-
+                var temp2 = emoji
+                temp2.selectedCount += 1
+                currentList[index] = temp2
             }
-
         }
     }
 
-    func showingAndHiddingImage() {
-
-        DispatchQueue.main.asyncAfter(deadline: .now()) {
-            self.isFaceUp = true
-            if(!isFirstRun){
-                selectedCount += 1
-
-                selectedCardStates[self.id] = .init(emojiAsString: self.emojiAsString)
-
-            }
-
-        }
-
-        hidingImage()
-    }
-
-    func checkIfMatch() -> Bool {
-
-        let currentValues = selectedCardStates.values.map { (memoryCardState) -> String in
-            return memoryCardState.emojiAsString
-        }
-
-        print("selected: \(currentValues.count) \(currentValues.joined(separator: " "))")
-
-        if matchedCards.keys.contains(self.emoji) {
-            return true
-        }
-       if let valueOfState = self.selectedCardStates[self.id] {
-            let emojiAsString = valueOfState.emojiAsString
-            var count = 0
-            var indexToRemove = [UUID]()
-            for (eachIndex, eachValue) in selectedCardStates {
-                count +=  eachValue.emojiAsString == emojiAsString ? 1 : 0
-                if (eachValue == valueOfState) {
-                    indexToRemove.append(eachIndex)
-                }
-            }
-            if count > 1 {
-                matchedCards[valueOfState] = count
-                // clean up
-                for each in indexToRemove {
-                    selectedCardStates.removeValue(forKey: each)
-                }
-            }
-        }
-        if matchedCards.keys.contains(self.emoji) {
-            return true
-        }
-        return false
-    }
 
     let cornerRadius = CGFloat(25)
     var body: some View {
         ZStack {
             Image(uiImage: ImageCache[
-            "\(selectedCount < 1 ? "" : "\(selectedCount)" )"
+            "\(emoji.selectedCount < 1 ? "" : "\(emoji.selectedCount)" )"
             ])
             .resizable()
-            Image(uiImage: isFaceUp ? emoji.emojiToImage() : ImageCache[""])
+            Image(uiImage: emoji.isFaceUp && !emoji.isMatch ? emoji.emojiToImage() : ImageCache[""])
             .resizable()
         }
             .animation(.linear)
-            .background(isMatch ? Color.green : Color.orange)
-            .onAppear{
-                defer { isFirstRun = false  }
-                guard isFirstRun else { return }
-            }
-            .onReceive(timerMatchedCard) { _ in
-                isMatch = self.checkIfMatch()
-                if isMatch {
-                    //Cancel timer for cell
-                    self.timerMatchedCard.upstream.connect().cancel()
-                    self.isFaceUp = false
-                }
-            }
+            .background(emoji.isMatch ? Color.green : Color.orange)
             .onDisappear {
             }
             .onTapGesture {
-                if isMatch {
+
+                print("selected: index \(index)")
+                if emoji.isMatch {
                 // disable tapping if matched already
+                   var temp = emoji
+                   temp.isFaceUp = false
+                   currentList[index] = temp
                  return
                 }
 
-                self.toggleVisibilityOfImage()
-                self.isMatch = self.checkIfMatch()
+                //  chech if able to flip
+                let count = currentList.filter { state in
+                    state.isFaceUp && !state.isMatch
+                }.count
+
+
+                if (count < 2) {
+                    self.toggleVisibilityOfImage()
+                } else if (emoji.isFaceUp)  {
+                    self.toggleVisibilityOfImage()
+                } else {
+                    // notify user only two cards at a time
+                }
+
+                print("selected: count \(count)")
+
             }
             .cornerRadius(cornerRadius)
             .overlay(
@@ -148,30 +82,41 @@ struct MemorizeCard: Identifiable, View {
 
     }
 
-    var emoji:Emoji
+    var index:Int
+    var emoji:EmojiState {
+        get {
+            return currentList[index]
+        }
+    }
     var id: UUID
-    var emojiAsString:String
+    var emojiAsString:String {
+        get {
+            return emoji.value.emojiAsString
+        }
+    }
 
     init(
-        emoji: Emoji,
-        selected: Binding< Dictionary<UUID, Emoji>>,
-        matched: Binding<Dictionary<Emoji,Int>>
+        index: Int,
+        matched: Binding<Dictionary<EmojiValue, Int>>,
+        current: Binding<Array<EmojiState>>
         )
         {
-            self.emoji = emoji
-            self.emojiAsString = emoji.emojiAsString
             self.id = UUID()
-            self._selectedCardStates = selected
+            self.index = index
             self._matchedCards = matched
+            self._currentList = current
         }
 }
 
 #if DEBUG
 struct MemorizeCard_Previews_Wrapper:View {
-    @State var selected = Dictionary<UUID, Emoji>()
-    @State var matched = Dictionary<Emoji, Int>()
+    @State var current = Array<EmojiState>()
+    @State var matched = Dictionary<EmojiValue, Int>()
     var body: some View {
-              MemorizeCard(emoji: Emoji.init(emojiAsString: "😎"), selected: $selected, matched: $matched).frame(width: 150, height: 150, alignment: .center)
+           current.append(EmojiState.init(value: EmojiValue.init(emojiAsString: "😎")))
+
+            return  MemorizeCard(index: 0, matched: $matched, current: $current)
+            .frame(width: 150, height: 150, alignment: .center)
     }
 }
 
