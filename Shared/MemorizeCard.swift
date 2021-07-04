@@ -9,24 +9,22 @@ import SwiftUI
 
 struct MemorizeCard: Identifiable, View {
 
-    let timerMatchedCard = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+    @Binding var matchedCards: Dictionary<EmojiState, Int>
 
-    @State var isFaceUp = false
-    @State var isMatch = false
-
-    @State var selectedCount = 0
-
-    @Binding var matchedCards: Dictionary<Emoji, Int>
-
+    @Binding var currentList:[EmojiState]
 
     func toggleVisibilityOfImage() {
         DispatchQueue.main.asyncAfter(deadline: .now()) {
 
-            self.isFaceUp.toggle()
+            var temp = emoji
+            temp.isFaceUp.toggle()
+                currentList[index] = temp
 
-            if (isFaceUp) {
+            if (emoji.isFaceUp) {
                 // Show count to user
-                selectedCount += 1
+                var temp = emoji
+                temp.selectedCount += 1
+                currentList[index] = temp
             }
         }
     }
@@ -36,18 +34,18 @@ struct MemorizeCard: Identifiable, View {
     var body: some View {
         ZStack {
             Image(uiImage: ImageCache[
-            "\(selectedCount < 1 ? "" : "\(selectedCount)" )"
+            "\(emoji.selectedCount < 1 ? "" : "\(emoji.selectedCount)" )"
             ])
             .resizable()
-            Image(uiImage: isFaceUp ? emoji.emojiToImage() : ImageCache[""])
+            Image(uiImage: emoji.isFaceUp ? emoji.emojiToImage() : ImageCache[""])
             .resizable()
         }
             .animation(.linear)
-            .background(isMatch ? Color.green : Color.orange)
+            .background(emoji.isMatch ? Color.green : Color.orange)
             .onDisappear {
             }
             .onTapGesture {
-                if isMatch {
+                if emoji.isMatch {
                 // disable tapping if matched already
                  return
                 }
@@ -64,15 +62,9 @@ struct MemorizeCard: Identifiable, View {
 
     }
 
-
-    @Binding var currentList:[Emoji]
-
-
     var index:Int
-    var emoji:Emoji {
+    var emoji:EmojiState {
         get {
-            print("selected: index: \(index), currentList Count \(currentList.count)")
-
             return currentList[index]
         }
     }
@@ -85,8 +77,8 @@ struct MemorizeCard: Identifiable, View {
 
     init(
         index: Int,
-        matched: Binding<Dictionary<Emoji, Int>>,
-        current: Binding<Array<Emoji>>
+        matched: Binding<Dictionary<EmojiState, Int>>,
+        current: Binding<Array<EmojiState>>
         )
         {
             self.id = UUID()
@@ -98,10 +90,10 @@ struct MemorizeCard: Identifiable, View {
 
 #if DEBUG
 struct MemorizeCard_Previews_Wrapper:View {
-    @State var current = Array<Emoji>()
-    @State var matched = Dictionary<Emoji, Int>()
+    @State var current = Array<EmojiState>()
+    @State var matched = Dictionary<EmojiState, Int>()
     var body: some View {
-           current.append(Emoji.init(emojiAsString: "😎"))
+           current.append(EmojiState.init(emojiAsString: "😎"))
 
             return  MemorizeCard(index: 0, matched: $matched, current: $current)
             .frame(width: 150, height: 150, alignment: .center)
