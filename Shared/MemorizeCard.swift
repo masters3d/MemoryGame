@@ -9,7 +9,7 @@ import SwiftUI
 
 struct MemorizeCard: Identifiable, View {
 
-    @Binding var matchedCards: Dictionary<EmojiState, Int>
+    @Binding var matchedCards: Dictionary<EmojiValue, Int>
 
     @Binding var currentList:[EmojiState]
 
@@ -37,7 +37,7 @@ struct MemorizeCard: Identifiable, View {
             "\(emoji.selectedCount < 1 ? "" : "\(emoji.selectedCount)" )"
             ])
             .resizable()
-            Image(uiImage: emoji.isFaceUp ? emoji.emojiToImage() : ImageCache[""])
+            Image(uiImage: emoji.isFaceUp && !emoji.isMatch ? emoji.emojiToImage() : ImageCache[""])
             .resizable()
         }
             .animation(.linear)
@@ -47,6 +47,9 @@ struct MemorizeCard: Identifiable, View {
             .onTapGesture {
                 if emoji.isMatch {
                 // disable tapping if matched already
+                   var temp = emoji
+                   temp.isFaceUp = false
+                   currentList[index] = temp
                  return
                 }
 
@@ -71,13 +74,13 @@ struct MemorizeCard: Identifiable, View {
     var id: UUID
     var emojiAsString:String {
         get {
-            return emoji.emojiAsString
+            return emoji.value.emojiAsString
         }
     }
 
     init(
         index: Int,
-        matched: Binding<Dictionary<EmojiState, Int>>,
+        matched: Binding<Dictionary<EmojiValue, Int>>,
         current: Binding<Array<EmojiState>>
         )
         {
@@ -91,9 +94,9 @@ struct MemorizeCard: Identifiable, View {
 #if DEBUG
 struct MemorizeCard_Previews_Wrapper:View {
     @State var current = Array<EmojiState>()
-    @State var matched = Dictionary<EmojiState, Int>()
+    @State var matched = Dictionary<EmojiValue, Int>()
     var body: some View {
-           current.append(EmojiState.init(emojiAsString: "😎"))
+           current.append(EmojiState.init(value: EmojiValue.init(emojiAsString: "😎")))
 
             return  MemorizeCard(index: 0, matched: $matched, current: $current)
             .frame(width: 150, height: 150, alignment: .center)

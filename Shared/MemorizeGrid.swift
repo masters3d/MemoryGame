@@ -11,11 +11,11 @@ import SwiftUI
 
 struct MemorizeGrid: View {
 
-    let timerMatchedCard = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+    let timerMatchedCard = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
 
     @State var currentList = createEmoji()
 
-    @State var matchedCards = Dictionary<EmojiState,Int>()
+    @State var matchedCards = Dictionary<EmojiValue,Int>()
 
     static var widthCount = 4
     static var heightCount = 5
@@ -48,6 +48,28 @@ struct MemorizeGrid: View {
                         emojiView.padding(2)
                         }
                     }
+                }
+            }
+        }.onReceive(timerMatchedCard) {
+        _ in
+            var selected = Dictionary<EmojiValue,Int>()
+
+            for each in currentList where each.isFaceUp {
+               if let value = selected[each.value] {
+                    selected[each.value] = value + 1
+               } else {
+                    selected[each.value] = 1
+               }
+            }
+
+            for (key, value) in selected where value > 1 {
+                matchedCards[key] = value
+                for (index,each) in currentList.enumerated() where
+                    each.value.emojiAsString == key.emojiAsString
+                {
+                    var each = each
+                    each.isMatch = true
+                        currentList[index] = each
                 }
             }
         }
