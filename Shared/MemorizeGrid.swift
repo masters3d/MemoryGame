@@ -69,6 +69,7 @@ struct MemorizeGrid: View {
                 {
                     var each = each
                     each.isMatch = true
+                    each.isFaceUp = false
                         currentList[index] = each
                 }
             }

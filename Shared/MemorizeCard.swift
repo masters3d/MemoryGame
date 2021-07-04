@@ -22,9 +22,9 @@ struct MemorizeCard: Identifiable, View {
 
             if (emoji.isFaceUp) {
                 // Show count to user
-                var temp = emoji
-                temp.selectedCount += 1
-                currentList[index] = temp
+                var temp2 = emoji
+                temp2.selectedCount += 1
+                currentList[index] = temp2
             }
         }
     }
@@ -45,6 +45,8 @@ struct MemorizeCard: Identifiable, View {
             .onDisappear {
             }
             .onTapGesture {
+
+                print("selected: index \(index)")
                 if emoji.isMatch {
                 // disable tapping if matched already
                    var temp = emoji
@@ -53,7 +55,22 @@ struct MemorizeCard: Identifiable, View {
                  return
                 }
 
-                self.toggleVisibilityOfImage()
+                //  chech if able to flip
+                let count = currentList.filter { state in
+                    state.isFaceUp && !state.isMatch
+                }.count
+
+
+                if (count < 2) {
+                    self.toggleVisibilityOfImage()
+                } else if (emoji.isFaceUp)  {
+                    self.toggleVisibilityOfImage()
+                } else {
+                    // notify user only two cards at a time
+                }
+
+                print("selected: count \(count)")
+
             }
             .cornerRadius(cornerRadius)
             .overlay(
