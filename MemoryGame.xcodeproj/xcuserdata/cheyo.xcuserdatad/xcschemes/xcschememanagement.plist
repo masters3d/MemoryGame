@@ -11,6 +11,8 @@
 		</dict>
 		<key>MemoryGame (macOS).xcscheme_^#shared#^_</key>
 		<dict>
+			<key>isShown</key>
+			<true/>
 			<key>orderHint</key>
 			<integer>1</integer>
 		</dict>
@@ -18,6 +20,11 @@
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
 		<key>1E263C072685927E00084EF3</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>1E263C0F2685927E00084EF3</key>
 		<dict>
 			<key>primary</key>
 			<true/>
