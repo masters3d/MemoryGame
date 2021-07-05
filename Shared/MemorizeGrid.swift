@@ -20,6 +20,42 @@ struct MemorizeGrid: View {
     static var widthCount = 4
     static var heightCount = 5
 
+    @State private var isShowingWonAlert = false
+
+    func updateMatchedStatus() {
+        var selected = Dictionary<EmojiValue,Int>()
+
+        for each in currentList where each.isFaceUp {
+           if let value = selected[each.value] {
+                selected[each.value] = value + 1
+           } else {
+                selected[each.value] = 1
+           }
+        }
+
+        for (key, value) in selected where value > 1 {
+            matchedCards[key] = value
+            for (index,each) in currentList.enumerated() where
+                each.value.emojiAsString == key.emojiAsString
+            {
+                var each = each
+                each.isMatch = true
+                each.isFaceUp = false
+                    currentList[index] = each
+            }
+        }
+    }
+
+    func checkAndAlertWhenDone() {
+        let matchedCount = currentList.filter { emojiState in
+            emojiState.isMatch
+        }.count
+
+        if matchedCount == currentList.count {
+            isShowingWonAlert = true
+        }
+    }
+
     static func createEmoji() -> [EmojiState] {
 
         var temp = [EmojiState]()
@@ -54,34 +90,21 @@ struct MemorizeGrid: View {
                 }
             }
         }.padding(4)
+        .alert(isPresented: $isShowingWonAlert) { () -> Alert in
+
+            let button = Alert.Button.default(Text("New Game")) {
+                currentList = MemorizeGrid.createEmoji()
+                isShowingWonAlert = false
+            }
+            return Alert(title: Text("You Won"), message: Text("Your score is: \(currentList.map {$0.selectedCount}.reduce(0, +))"), dismissButton: button)
+        }
         .onReceive(timerMatchedCard) {
         _ in
-            var selected = Dictionary<EmojiValue,Int>()
-
-            for each in currentList where each.isFaceUp {
-               if let value = selected[each.value] {
-                    selected[each.value] = value + 1
-               } else {
-                    selected[each.value] = 1
-               }
-            }
-
-            for (key, value) in selected where value > 1 {
-                matchedCards[key] = value
-                for (index,each) in currentList.enumerated() where
-                    each.value.emojiAsString == key.emojiAsString
-                {
-                    var each = each
-                    each.isMatch = true
-                    each.isFaceUp = false
-                        currentList[index] = each
-                }
-            }
+            self.updateMatchedStatus()
+            self.checkAndAlertWhenDone()
         }
     }
 }
-
-
 
 #if DEBUG
 
