@@ -44,13 +44,17 @@ struct MemorizeGrid: View {
                 HStack(spacing: 0) {
                     ForEach(0..<MemorizeGrid.widthCount) { widthIndex in
                         let emoji_index = (heightIndex * MemorizeGrid.widthCount) +  widthIndex
-                        let emojiView = MemorizeCard(index: emoji_index, matched: $matchedCards, current: $currentList)
-                        emojiView.padding(2)
+                        let emojiView = MemorizeCard(index: emoji_index, matched: $matchedCards, current: $currentList,
+                        width: (Double(geometry.size.width - geometry.safeAreaInsets.leading - geometry.safeAreaInsets.trailing) / Double(MemorizeGrid.widthCount)) - 4,
+                        height: (Double(geometry.size.height - geometry.safeAreaInsets.top - geometry.safeAreaInsets.bottom) / Double(MemorizeGrid.heightCount)) - 4
+                        )
+                        emojiView
                         }
                     }
                 }
             }
-        }.onReceive(timerMatchedCard) {
+        }.padding(4)
+        .onReceive(timerMatchedCard) {
         _ in
             var selected = Dictionary<EmojiValue,Int>()
 
