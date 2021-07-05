@@ -9,6 +9,7 @@ import SwiftUI
 
 @main
 struct MemoryGameApp: App {
+
     var body: some Scene {
         WindowGroup {
             MemorizeGame()
@@ -16,19 +17,19 @@ struct MemoryGameApp: App {
     }
 }
 
+typealias HistoryEntry = (score:Int, duration:Double, timestamp: Date)
+
 struct MemorizeGame: View {
 
-    var grid = MemorizeGrid()
+    @State var runsHistory = [HistoryEntry]()
 
     var game:some View {
         VStack {
         HStack {
             Text("Memory Game").font(.headline)
-            Spacer()
         }
          GeometryReader{  geometry in
-                self.grid
-
+                MemorizeGrid(runsHistory: $runsHistory)
             }
         }
     }
@@ -38,10 +39,11 @@ struct MemorizeGame: View {
         HStack {
             Text("Stats").font(.headline)
         }
-            Spacer()
-            Text("List goes here")
-            Spacer()
-
+            List(runsHistory, id: \.timestamp) { entry in
+                Text("\(entry.timestamp)")
+                Text("Duration: \(entry.duration) Score: \(entry.score)")
+                Spacer()
+            }
         }
     }
 
@@ -53,7 +55,7 @@ struct MemorizeGame: View {
             // First Tab
             game.tabItem {
                 Image(uiImage: UIImage(systemName: "gamecontroller")!)
-                    Text("Game1")
+                    Text("Game")
                 }
 
             // Next Tab

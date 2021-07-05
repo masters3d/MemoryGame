@@ -11,9 +11,13 @@ import SwiftUI
 
 struct MemorizeGrid: View {
 
-    let timerMatchedCard = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
+    private static let timeResolution = 0.5
+
+    var timerMatchedCard = Timer.publish(every: MemorizeGrid.timeResolution, on: .main, in: .common).autoconnect()
 
     @State var currentList = createEmoji()
+
+    @State var secondsSinceStartOfGame = 0.0
 
     @State var matchedCards = Dictionary<EmojiValue,Int>()
 
@@ -21,6 +25,10 @@ struct MemorizeGrid: View {
     static var heightCount = 5
 
     @State private var isShowingWonAlert = false
+
+    func incrementTimeCounter() {
+        secondsSinceStartOfGame += MemorizeGrid.timeResolution
+    }
 
     func updateMatchedStatus() {
         var selected = Dictionary<EmojiValue,Int>()
@@ -51,8 +59,14 @@ struct MemorizeGrid: View {
             emojiState.isMatch
         }.count
 
-        if matchedCount == currentList.count {
+        if !isShowingWonAlert && matchedCount == currentList.count {
             isShowingWonAlert = true
+            // Add run history to history array
+            let scoreRun = currentList.map {$0.selectedCount}.reduce(0, +)
+
+            runsHistory.append(
+            (score: scoreRun, duration: secondsSinceStartOfGame, timestamp: Date())
+            )
         }
     }
 
@@ -72,6 +86,11 @@ struct MemorizeGrid: View {
         return temp
     }
 
+    @Binding var runsHistory:[HistoryEntry]
+
+    init(runsHistory: Binding<[HistoryEntry]>) {
+        self._runsHistory = runsHistory
+    }
 
     var body: some View {
     GeometryReader { geometry in
@@ -91,15 +110,27 @@ struct MemorizeGrid: View {
             }
         }.padding(4)
         .alert(isPresented: $isShowingWonAlert) { () -> Alert in
+            // SwiftUI: Modifying state during view update, this will cause undefined behavior.
+
+            // NOTE: Readinga @State variable that is changing constantly (perhaps via a timer) makes the view to redraw causing the view to get stuck in an infinite loop of updating which block the main thread thus making it seem like the vieww is frozen.
+
+            var lastRunTime = 0.0
+            var lastRunScore = 0
+            if let lastRun = runsHistory.last {
+                (lastRunScore, lastRunTime, _ ) = lastRun
+            }
 
             let button = Alert.Button.default(Text("New Game")) {
                 currentList = MemorizeGrid.createEmoji()
                 isShowingWonAlert = false
+                secondsSinceStartOfGame = 0.0
+
             }
-            return Alert(title: Text("You Won"), message: Text("Your score is: \(currentList.map {$0.selectedCount}.reduce(0, +))"), dismissButton: button)
+            return Alert(title: Text("You Won"), message: Text("Your score is: \(lastRunScore). Game time: \(lastRunTime)s"), dismissButton: button)
         }
         .onReceive(timerMatchedCard) {
         _ in
+            self.incrementTimeCounter()
             self.updateMatchedStatus()
             self.checkAndAlertWhenDone()
         }
@@ -108,9 +139,16 @@ struct MemorizeGrid: View {
 
 #if DEBUG
 
+struct MemorizeGrid_PreviewsWrapper: View {
+    @State var runsHistory = [HistoryEntry]()
+    var body: some View {
+        MemorizeGrid(runsHistory: $runsHistory)
+    }
+}
+
 struct MemorizeGrid_Previews: PreviewProvider {
     static var previews: some View {
-       MemorizeGrid()
+       MemorizeGrid_PreviewsWrapper()
     }
 }
 
