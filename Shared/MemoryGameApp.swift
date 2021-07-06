@@ -17,7 +17,7 @@ struct MemoryGameApp: App {
     }
 }
 
-typealias HistoryEntry = (score:Int, duration:Double, timestamp: Date)
+typealias HistoryEntry = (stats: EmojiStats, score:Int, duration:Double, timestamp: Date)
 
 struct MemorizeGame: View {
 
@@ -34,6 +34,24 @@ struct MemorizeGame: View {
         }
     }
 
+     func formatCardStats(_ cards: EmojiStats, upToCount:Int = 4) -> String {
+        let sorted = cards.map {keyValue in (key: keyValue.key.emojiAsString, value: keyValue.value) }.sorted {left, right in left.value > right.value}
+        var count = 0
+        var valueToReturn = "|"
+        for each in sorted {
+            defer {
+                count += 1
+            }
+            if (count >= upToCount) {
+                break;
+            }
+
+            valueToReturn += " \(each.key):\(each.value) |"
+        }
+        return valueToReturn
+
+    }
+
     var stats:some View {
         VStack {
         HStack {
@@ -42,6 +60,7 @@ struct MemorizeGame: View {
             List(runsHistory, id: \.timestamp) { entry in
                 Text("\(entry.timestamp)")
                 Text("Duration: \(entry.duration) Score: \(entry.score)")
+                Text("Stats: \(formatCardStats(entry.stats))")
                 Spacer()
             }
         }

@@ -19,7 +19,7 @@ struct MemorizeGrid: View {
 
     @State var secondsSinceStartOfGame = 0.0
 
-    @State var matchedCards = Dictionary<EmojiValue,Int>()
+    @State var matchedCards = EmojiStats()
 
     static var widthCount = 4
     static var heightCount = 5
@@ -31,25 +31,27 @@ struct MemorizeGrid: View {
     }
 
     func updateMatchedStatus() {
-        var selected = Dictionary<EmojiValue,Int>()
+        var selected = Dictionary<EmojiValue,(cardCount:Int, selectedCount:Int)>()
 
         for each in currentList where each.isFaceUp {
-           if let value = selected[each.value] {
-                selected[each.value] = value + 1
+           if let (cardCount, selectedCount) = selected[each.value] {
+                let valueToInsert = (cardCount:cardCount + 1, selectedCount: selectedCount + each.selectedCount)
+
+                selected[each.value] = valueToInsert
            } else {
-                selected[each.value] = 1
+                selected[each.value] = (cardCount: 1, selectedCount: each.selectedCount)
            }
         }
 
-        for (key, value) in selected where value > 1 {
-            matchedCards[key] = value
+        for (key, value) in selected where value.cardCount > 1 {
+            matchedCards[key] = value.selectedCount
             for (index,each) in currentList.enumerated() where
                 each.value.emojiAsString == key.emojiAsString
             {
                 var each = each
                 each.isMatch = true
                 each.isFaceUp = false
-                    currentList[index] = each
+                currentList[index] = each
             }
         }
     }
@@ -65,7 +67,7 @@ struct MemorizeGrid: View {
             let scoreRun = currentList.map {$0.selectedCount}.reduce(0, +)
 
             runsHistory.append(
-            (score: scoreRun, duration: secondsSinceStartOfGame, timestamp: Date())
+            (stats: matchedCards ,score: scoreRun, duration: secondsSinceStartOfGame, timestamp: Date())
             )
         }
     }
@@ -117,11 +119,12 @@ struct MemorizeGrid: View {
             var lastRunTime = 0.0
             var lastRunScore = 0
             if let lastRun = runsHistory.last {
-                (lastRunScore, lastRunTime, _ ) = lastRun
+                (_, lastRunScore, lastRunTime, _ ) = lastRun
             }
 
             let button = Alert.Button.default(Text("New Game")) {
                 currentList = MemorizeGrid.createEmoji()
+                matchedCards = EmojiStats()
                 isShowingWonAlert = false
                 secondsSinceStartOfGame = 0.0
 
@@ -136,6 +139,9 @@ struct MemorizeGrid: View {
         }
     }
 }
+
+
+
 
 #if DEBUG
 
