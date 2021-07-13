@@ -70,6 +70,8 @@ struct EmojiValue:Hashable {
     var emojiAsString: String
 }
 
+typealias EmojiStats = Dictionary<EmojiValue,Int>
+
 struct EmojiState:Hashable {
     var value: EmojiValue
     var isFaceUp = false
