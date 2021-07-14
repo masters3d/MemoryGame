@@ -19,6 +19,12 @@
 		1E29F283268D73DF00BC3C69 /* Controller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E29F281268D73DF00BC3C69 /* Controller.swift */; };
 		1E85104D2691469500A97090 /* MemorizeCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E85104C2691469500A97090 /* MemorizeCard.swift */; };
 		1E85104E2691469500A97090 /* MemorizeCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E85104C2691469500A97090 /* MemorizeCard.swift */; };
+		1EA94FD2269D377300FDFC71 /* Puzzle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EA94FD1269D377300FDFC71 /* Puzzle.swift */; };
+		1EA94FD3269D377300FDFC71 /* Puzzle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EA94FD1269D377300FDFC71 /* Puzzle.swift */; };
+		1EA94FD5269E992600FDFC71 /* PuzzleGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EA94FD4269E992600FDFC71 /* PuzzleGrid.swift */; };
+		1EA94FD6269E992600FDFC71 /* PuzzleGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EA94FD4269E992600FDFC71 /* PuzzleGrid.swift */; };
+		1EA94FD9269E9B9200FDFC71 /* PuzzleCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EA94FD8269E9B9200FDFC71 /* PuzzleCard.swift */; };
+		1EA94FDA269E9B9200FDFC71 /* PuzzleCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EA94FD8269E9B9200FDFC71 /* PuzzleCard.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -33,6 +39,9 @@
 		1E29F27C268D73D100BC3C69 /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
 		1E29F281268D73DF00BC3C69 /* Controller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Controller.swift; sourceTree = "<group>"; };
 		1E85104C2691469500A97090 /* MemorizeCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemorizeCard.swift; sourceTree = "<group>"; };
+		1EA94FD1269D377300FDFC71 /* Puzzle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Puzzle.swift; sourceTree = "<group>"; };
+		1EA94FD4269E992600FDFC71 /* PuzzleGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PuzzleGrid.swift; sourceTree = "<group>"; };
+		1EA94FD8269E9B9200FDFC71 /* PuzzleCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PuzzleCard.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -68,6 +77,7 @@
 			children = (
 				1E263C012685927400084EF3 /* MemoryGameApp.swift */,
 				1E263C022685927400084EF3 /* MemorizeGrid.swift */,
+				1EA94FD7269E9B4B00FDFC71 /* Puzzle */,
 				1E85104C2691469500A97090 /* MemorizeCard.swift */,
 				1E263C032685927E00084EF3 /* Assets.xcassets */,
 				1E29F27C268D73D100BC3C69 /* Model.swift */,
@@ -100,6 +110,16 @@
 				1E263C132685927E00084EF3 /* macOS.entitlements */,
 			);
 			path = macOS;
+			sourceTree = "<group>";
+		};
+		1EA94FD7269E9B4B00FDFC71 /* Puzzle */ = {
+			isa = PBXGroup;
+			children = (
+				1EA94FD4269E992600FDFC71 /* PuzzleGrid.swift */,
+				1EA94FD1269D377300FDFC71 /* Puzzle.swift */,
+				1EA94FD8269E9B9200FDFC71 /* PuzzleCard.swift */,
+			);
+			path = Puzzle;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -202,8 +222,11 @@
 				1E29F27D268D73D200BC3C69 /* Model.swift in Sources */,
 				1E263C162685927E00084EF3 /* MemorizeGrid.swift in Sources */,
 				1E263C142685927E00084EF3 /* MemoryGameApp.swift in Sources */,
+				1EA94FD2269D377300FDFC71 /* Puzzle.swift in Sources */,
 				1E29F282268D73DF00BC3C69 /* Controller.swift in Sources */,
+				1EA94FD5269E992600FDFC71 /* PuzzleGrid.swift in Sources */,
 				1E85104D2691469500A97090 /* MemorizeCard.swift in Sources */,
+				1EA94FD9269E9B9200FDFC71 /* PuzzleCard.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -214,8 +237,11 @@
 				1E29F27E268D73D200BC3C69 /* Model.swift in Sources */,
 				1E263C172685927E00084EF3 /* MemorizeGrid.swift in Sources */,
 				1E263C152685927E00084EF3 /* MemoryGameApp.swift in Sources */,
+				1EA94FD3269D377300FDFC71 /* Puzzle.swift in Sources */,
 				1E29F283268D73DF00BC3C69 /* Controller.swift in Sources */,
+				1EA94FD6269E992600FDFC71 /* PuzzleGrid.swift in Sources */,
 				1E85104E2691469500A97090 /* MemorizeCard.swift in Sources */,
+				1EA94FDA269E9B9200FDFC71 /* PuzzleCard.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

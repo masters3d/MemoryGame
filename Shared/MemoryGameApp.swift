@@ -34,6 +34,15 @@ struct MemorizeGame: View {
         }
     }
 
+    var puzzle: some View {
+        VStack {
+        HStack {
+            Text("Memory Game").font(.headline)
+        }
+            PuzzleGrid()
+        }
+    }
+
      func formatCardStats(_ cards: EmojiStats, upToCount:Int = 4) -> String {
         let sorted = cards.map {keyValue in (key: keyValue.key.emojiAsString, value: keyValue.value) }.sorted {left, right in left.value > right.value}
         var count = 0
@@ -74,7 +83,13 @@ struct MemorizeGame: View {
             // First Tab
             game.tabItem {
                 Image(uiImage: UIImage(systemName: "gamecontroller")!)
-                    Text("Game")
+                    Text("Match")
+                }
+
+            //Tab
+            puzzle.tabItem {
+                Image(uiImage: UIImage(systemName: "gamecontroller")!)
+                    Text("Puzzle")
                 }
 
             // Next Tab
